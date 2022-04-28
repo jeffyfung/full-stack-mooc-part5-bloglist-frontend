@@ -10,6 +10,7 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' });
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser');
@@ -21,13 +22,15 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    blogService.getAll().then(blogs => setBlogs( blogs ));
+    (async () => {
+      let blogs = await blogService.getAll();
+      setBlogs(blogs);
+    })();
   }, []);
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    console.log('User being logged in');
     try {
       let user = await loginService.login({ username, password });
       blogService.setToken(user.token);
@@ -47,17 +50,29 @@ const App = () => {
     setUser('');
   }
 
+  const createBlog = async (event) => {
+    event.preventDefault();
+
+    try {
+      await blogService.create(newBlog);
+      setNewBlog({ title: '', author: '', url: '' });
+      let blogs = await blogService.getAll();
+      setBlogs(blogs);
+    } catch (err) {
+      setErrorMessage('Fail to create blog');
+      setTimeout(() => setErrorMessage(null), 5000);
+    }
+  }
+
   const loginForm = () => (
     <>
       <h2>Log In</h2>
       <form onSubmit={handleLogin}>
         <div>
-          username
-          <input type="text" value={username} name="username" onChange={({ target }) => setUsername(target.value)}/>
+          username <input type="text" value={username} name="username" onChange={({ target }) => setUsername(target.value)}/>
         </div>
         <div>
-          password 
-          <input type="text" value={password} name="password" onChange={({ target }) => setPassword(target.value)}/>
+          password <input type="password" value={password} name="password" onChange={({ target }) => setPassword(target.value)}/>
         </div>
         <br/>
         <button type="submit">login</button>
@@ -68,11 +83,29 @@ const App = () => {
   const blogDisplay = () => (
     <>
       <h2>blogs</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
-      <br/>
-      <button type="button" onClick={handleLogout}>logout</button>
+      <div>
+        {user.name} logged in <button type="button" onClick={handleLogout}>logout</button>
+      </div>
+
+      <h2>create new</h2>
+      <div>
+        <form onSubmit={createBlog}>
+          <div>
+            title <input type="text" value={newBlog.title} onChange={({ target }) => setNewBlog({...newBlog, title: target.value})}/>
+          </div>
+          <div>
+            author <input type="text" value={newBlog.author} onChange={({ target }) => setNewBlog({...newBlog, author: target.value})}/>
+          </div>
+          <div>
+            url <input type="text" value={newBlog.url} onChange={({ target }) => setNewBlog({...newBlog, url: target.value})}/>
+          </div>
+          <button type="submit">create</button>
+        </form>
+      </div>
+
+      <div>
+        { blogs.map(blog => <Blog key={blog.id} blog={blog}/>) }
+      </div>
     </>
   )
 
