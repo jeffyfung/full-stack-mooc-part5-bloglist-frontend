@@ -9,7 +9,8 @@ const App = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [errorFlag, setErrorFlag] = useState();
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' });
 
   useEffect(() => {
@@ -39,8 +40,9 @@ const App = () => {
       setUsername('');
       setPassword('');
     } catch (err) {
-      setErrorMessage('Wrong Credentials');
-      setTimeout(() => setErrorMessage(null), 5000);
+      setErrorFlag(true);
+      setStatusMessage('Wrong Credentials');
+      setTimeout(() => setStatusMessage(null), 5000);
     }
   };
 
@@ -55,13 +57,16 @@ const App = () => {
 
     try {
       await blogService.create(newBlog);
-      setNewBlog({ title: '', author: '', url: '' });
       let blogs = await blogService.getAll();
       setBlogs(blogs);
+      setErrorFlag(false);
+      setStatusMessage(`new blog added - ${newBlog.title} by ${newBlog.author}`);
+      setNewBlog({ title: '', author: '', url: '' });
     } catch (err) {
-      setErrorMessage('Fail to create blog');
-      setTimeout(() => setErrorMessage(null), 5000);
+      setErrorFlag(true);
+      setStatusMessage('Fail to create blog');
     }
+    setTimeout(() => setStatusMessage(null), 5000);
   }
 
   const loginForm = () => (
@@ -111,7 +116,7 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={errorMessage}/>
+      <Notification message={statusMessage} error={errorFlag}/>
       { user ? blogDisplay() : loginForm() }
     </div>
   )

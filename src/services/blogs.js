@@ -13,7 +13,6 @@ const getAll = async () => {
 }
 
 const create = async (blog) => {
-  console.log(blog);
   let config = { headers: { Authorization: token }};
   const res = await axios.post(baseUrl, blog, config);
   return res.data;
