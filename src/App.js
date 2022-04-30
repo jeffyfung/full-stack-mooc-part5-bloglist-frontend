@@ -74,6 +74,21 @@ const App = () => {
     setTimeout(() => setStatusMessage(null), 5000);
   }
 
+  const updateBlog = async (update) => {
+    try {
+      await blogService.update(update);
+      let blogs = await blogService.getAll();
+      setBlogs(blogs);
+      setErrorFlag(false);
+      setStatusMessage(`new blog added - ${newBlog.title} by ${newBlog.author}`);
+      setNewBlog({ title: '', author: '', url: '' });
+    } catch (err) {
+      setErrorFlag(true);
+      setStatusMessage('Fail to create blog');
+    }
+    setTimeout(() => setStatusMessage(null), 5000);
+  }
+
   const blogDisplay = () => (
     <div>
       <h2>blogs</h2>
@@ -85,7 +100,7 @@ const App = () => {
         <BlogForm onSubmit={createBlog} newBlog={newBlog} handleChange={setNewBlog} />  
       </Togglable>
       <div>
-        { blogs.map(blog => <Blog key={blog.id} blog={blog}/>) }
+        { blogs.map(blog => <Blog key={blog.id} blog={blog} updateBlog={updateBlog}/>) }
       </div>
     </div>
   )

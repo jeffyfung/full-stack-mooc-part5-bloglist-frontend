@@ -1,11 +1,12 @@
 import { useState } from "react"
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog }) => {
   const [detailsVisible, setDetailsVisible] = useState(false);
   const showWhenDetailsVisible = {display: detailsVisible ? '' : 'none'};
   const hideWhenDetailsVisible = {display: detailsVisible ? 'none' : ''}
 
   const toggleDetailsVisibility = () => setDetailsVisible(!detailsVisible);
+  const increaselike = () => updateBlog({_id: blog.id, likes: blog.likes + 1});
 
   return (
     <>
@@ -23,7 +24,7 @@ const Blog = ({ blog }) => {
         <div>link {blog.url}</div>
         <div>
           likes {blog.likes}
-          <button type="button" onClick={ () => console.log('liked') }>like</button>
+          <button type="button" onClick={increaselike}>like</button>
         </div>
         <div>{ blog.user ? 'user ' + blog.user.name : ''}</div>
       </div>
