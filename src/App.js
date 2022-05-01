@@ -100,7 +100,10 @@ const App = () => {
         <BlogForm onSubmit={createBlog} newBlog={newBlog} handleChange={setNewBlog} />  
       </Togglable>
       <div>
-        { blogs.map(blog => <Blog key={blog.id} blog={blog} updateBlog={updateBlog}/>) }
+        { blogs
+            .sort((blog1, blog2) => parseInt(blog2.likes) - parseInt(blog1.likes))
+            .map(blog => <Blog key={blog.id} blog={blog} updateBlog={updateBlog}/>)
+        }
       </div>
     </div>
   )
