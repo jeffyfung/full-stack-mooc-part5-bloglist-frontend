@@ -1,13 +1,14 @@
-import { useState } from "react"
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 
 const Blog = ({ user, blog, updateBlog, handleBlogDelete }) => {
   const [detailsVisible, setDetailsVisible] = useState(false);
 
-  const showWhenDetailsVisible = {display: detailsVisible ? '' : 'none'};
-  const hideWhenDetailsVisible = {display: detailsVisible ? 'none' : ''}
+  const showWhenDetailsVisible = { display: detailsVisible ? '' : 'none' };
+  const hideWhenDetailsVisible = { display: detailsVisible ? 'none' : '' };
 
   const toggleDetailsVisibility = () => setDetailsVisible(!detailsVisible);
-  const increaselike = () => updateBlog({_id: blog.id, likes: blog.likes + 1});
+  const increaselike = () => updateBlog({ _id: blog.id, likes: blog.likes + 1 });
   const handleDelete = () => handleBlogDelete(blog);
 
   const deleteButton = () => (
@@ -37,7 +38,14 @@ const Blog = ({ user, blog, updateBlog, handleBlogDelete }) => {
         { blog.user && blog.user.username === user.username ? deleteButton() : null }
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Blog
+Blog.propTypes = {
+  user: PropTypes.object.isRequired,
+  blog: PropTypes.object.isRequired,
+  updateBlog: PropTypes.func.isRequired,
+  handleBlogDelete: PropTypes.func.isRequired
+};
+
+export default Blog;

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
-import blogService from './services/blogs'
-import loginService from './services/login'
-import Notification from './components/Notification'
+import { useState, useEffect, useRef } from 'react';
+import Blog from './components/Blog';
+import BlogForm from './components/BlogForm';
+import Togglable from './components/Togglable';
+import blogService from './services/blogs';
+import loginService from './services/login';
+import Notification from './components/Notification';
 
 const App = () => {
   const [username, setUsername] = useState('');
@@ -22,7 +22,7 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
       blogService.setToken(user.token);
-      setUser(user);      
+      setUser(user);
     }
   }, []);
 
@@ -54,7 +54,7 @@ const App = () => {
     window.localStorage.removeItem('loggedUser');
     blogService.setToken('');
     setUser('');
-  }
+  };
 
   const createBlog = async (event) => {
     event.preventDefault();
@@ -72,7 +72,7 @@ const App = () => {
       setStatusMessage('Fail to create blog');
     }
     setTimeout(() => setStatusMessage(null), 5000);
-  }
+  };
 
   const updateBlog = async (update) => {
     try {
@@ -87,13 +87,13 @@ const App = () => {
       setStatusMessage('Fail to create blog');
     }
     setTimeout(() => setStatusMessage(null), 5000);
-  }
+  };
 
   const deleteBlog = async (blog) => {
     if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
       return;
     }
-    
+
     try {
       await blogService.remove(blog);
       let blogs = await blogService.getAll();
@@ -105,7 +105,7 @@ const App = () => {
       setStatusMessage('Fail to delete blog');
     }
     setTimeout(() => setStatusMessage(null), 5000);
-  }
+  };
 
   const blogDisplay = () => (
     <div>
@@ -114,17 +114,17 @@ const App = () => {
         {user.name} logged in <button type="button" onClick={handleLogout}>logout</button>
       </div>
       <br/>
-      <Togglable ref={togglableRef} buttonLabel1='new note' buttonLabel2='create'>
-        <BlogForm onSubmit={createBlog} newBlog={newBlog} handleChange={setNewBlog} />  
+      <Togglable ref={togglableRef} buttonLabel='new note'>
+        <BlogForm onSubmit={createBlog} newBlog={newBlog} handleChange={setNewBlog} />
       </Togglable>
       <div>
         { blogs
-            .sort((blog1, blog2) => parseInt(blog2.likes) - parseInt(blog1.likes))
-            .map(blog => <Blog key={blog.id} user={user} blog={blog} updateBlog={updateBlog} handleBlogDelete={deleteBlog}/>)
+          .sort((blog1, blog2) => parseInt(blog2.likes) - parseInt(blog1.likes))
+          .map(blog => <Blog key={blog.id} user={user} blog={blog} updateBlog={updateBlog} handleBlogDelete={deleteBlog}/>)
         }
       </div>
     </div>
-  )
+  );
 
   const loginForm = () => (
     <>
@@ -140,16 +140,16 @@ const App = () => {
         <button type="submit">login</button>
       </form>
     </>
-  )
+  );
 
   return (
     <div>
       <Notification message={statusMessage} error={errorFlag}/>
-      { user 
+      { user
         ? blogDisplay()
         : loginForm() }
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

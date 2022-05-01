@@ -4,8 +4,8 @@ const Notification = ({ message, error }) => {
       <div className="error" style={ error ? {} : { color: 'green', borderColor: 'green' } }>
         {message}
       </div>
-    )
+    );
   }
-}
+};
 
-export default Notification
+export default Notification;
