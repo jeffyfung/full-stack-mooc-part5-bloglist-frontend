@@ -89,6 +89,24 @@ const App = () => {
     setTimeout(() => setStatusMessage(null), 5000);
   }
 
+  const deleteBlog = async (blog) => {
+    if (!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      return;
+    }
+    
+    try {
+      await blogService.remove(blog);
+      let blogs = await blogService.getAll();
+      setBlogs(blogs);
+      setErrorFlag(false);
+      setStatusMessage(`blog deleted - ${blog.title} by ${blog.author}`);
+    } catch (err) {
+      setErrorFlag(true);
+      setStatusMessage('Fail to delete blog');
+    }
+    setTimeout(() => setStatusMessage(null), 5000);
+  }
+
   const blogDisplay = () => (
     <div>
       <h2>blogs</h2>
@@ -102,7 +120,7 @@ const App = () => {
       <div>
         { blogs
             .sort((blog1, blog2) => parseInt(blog2.likes) - parseInt(blog1.likes))
-            .map(blog => <Blog key={blog.id} blog={blog} updateBlog={updateBlog}/>)
+            .map(blog => <Blog key={blog.id} user={user} blog={blog} updateBlog={updateBlog} handleBlogDelete={deleteBlog}/>)
         }
       </div>
     </div>
