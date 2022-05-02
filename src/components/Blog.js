@@ -17,16 +17,16 @@ const Blog = ({ user, blog, updateBlog, handleBlogDelete }) => {
 
   return (
     <>
-      <div className="blog" style={hideWhenDetailsVisible}>
+      <div className="blog simple" style={hideWhenDetailsVisible}>
         <span>
-          {blog.title} {blog.author + ' '}
+          {blog.title + ' ' + blog.author}
         </span>
         <button type="button" onClick={toggleDetailsVisibility}>view</button>
       </div>
 
-      <div className="blog" style={showWhenDetailsVisible}>
+      <div className="blog expanded" style={showWhenDetailsVisible}>
         <span>
-          {blog.title} {blog.author + ' '}
+          {blog.title + ' ' + blog.author}
         </span>
         <button type="button" onClick={toggleDetailsVisibility}>hide</button>
         <div>link {blog.url}</div>
