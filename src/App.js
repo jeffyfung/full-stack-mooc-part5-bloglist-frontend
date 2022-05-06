@@ -79,8 +79,6 @@ const App = () => {
       await blogService.update(update);
       let blogs = await blogService.getAll();
       setBlogs(blogs);
-      setErrorFlag(false);
-      setStatusMessage(`new blog added - ${newBlog.title} by ${newBlog.author}`);
       setNewBlog({ title: '', author: '', url: '' });
     } catch (err) {
       setErrorFlag(true);
