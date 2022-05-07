@@ -57,5 +57,35 @@ describe('Blog app', function() {
         cy.should('not.contain', 'this is a blog title a guy');
       });
     });
+
+    describe('when several blogs exist', function() {
+      beforeEach(function() {
+        cy.createBlog({ title: 'blog with no like', author: 'author 3', url: 'url.com' });
+        cy.createBlog({ title: 'the most liked blog', author: 'author 1', url: 'url.com' });
+        cy.createBlog({ title: 'the second most liked blog', author: 'author 2', url: 'url.com' });
+      });
+
+      it('blogs are order by likes', function() {
+        // like blogs
+        cy.contains('the most liked blog author 1').parent().parent().as('blog1');
+        cy.get('@blog1').find('.simple').contains(/^view$/).click();
+        cy.get('@blog1').find('.expanded').contains(/^like$/).click();
+        cy.get('@blog1').contains('likes 1');
+        cy.get('@blog1').find('.expanded').contains(/^like$/).click();
+        cy.get('@blog1').contains('likes 2');
+        cy.get('@blog1').find('.expanded').contains(/^like$/).click();
+        cy.get('@blog1').contains('likes 3').should('be.visible');
+
+        cy.contains('the second most liked blog author 2').parent().parent().as('blog2');
+        cy.get('@blog2').find('.simple').contains(/^view$/).click();
+        cy.get('@blog2').find('.expanded').contains(/^like$/).click();
+        cy.get('@blog2').contains('likes 1').should('be.visible');
+
+        // check order
+        cy.get('[data-cy="blog"]').eq(0).should('contain', 'the most liked blog author 1');
+        cy.get('[data-cy="blog"]').eq(1).should('contain', 'the second most liked blog author 2');
+        cy.get('[data-cy="blog"]').eq(2).should('contain', 'blog with no like author 3');
+      });
+    });
   });
 });

@@ -16,7 +16,7 @@ const Blog = ({ user, blog, updateBlog, handleBlogDelete }) => {
   );
 
   return (
-    <>
+    <div data-cy="blog">
       <div className="blog simple" style={hideWhenDetailsVisible}>
         <span>
           {blog.title + ' ' + blog.author}
@@ -37,7 +37,7 @@ const Blog = ({ user, blog, updateBlog, handleBlogDelete }) => {
         <div>{ blog.user ? 'user ' + blog.user.name : ''}</div>
         { blog.user && blog.user.username === user.username ? deleteButton() : null }
       </div>
-    </>
+    </div>
   );
 };
 
