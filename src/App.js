@@ -13,8 +13,6 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState('');
-  // const [statusMessage, setStatusMessage] = useState('');
-  // const [errorFlag, setErrorFlag] = useState();
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' });
 
   const dispatch = useDispatch();
@@ -50,8 +48,6 @@ const App = () => {
       dispatch(
         updateNotification({ message: 'Wrong Credentials', error: true })
       );
-      // setErrorFlag(true);
-      // setStatusMessage('Wrong Credentials');
       setTimeout(
         () => dispatch(updateNotification({ message: null, error: null })),
         5000
