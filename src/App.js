@@ -1,20 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import Blog from './components/Blog';
 import BlogForm from './components/BlogForm';
 import Togglable from './components/Togglable';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
+import { updateNotification } from './reducers/notificationReducer';
 
 const App = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
-  const [errorFlag, setErrorFlag] = useState();
+  // const [statusMessage, setStatusMessage] = useState('');
+  // const [errorFlag, setErrorFlag] = useState();
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' });
 
+  const dispatch = useDispatch();
   const togglableRef = useRef();
 
   useEffect(() => {
@@ -44,9 +47,15 @@ const App = () => {
       setUsername('');
       setPassword('');
     } catch (err) {
-      setErrorFlag(true);
-      setStatusMessage('Wrong Credentials');
-      setTimeout(() => setStatusMessage(null), 5000);
+      dispatch(
+        updateNotification({ message: 'Wrong Credentials', error: true })
+      );
+      // setErrorFlag(true);
+      // setStatusMessage('Wrong Credentials');
+      setTimeout(
+        () => dispatch(updateNotification({ message: null, error: null })),
+        5000
+      );
     }
   };
 
@@ -64,14 +73,22 @@ const App = () => {
       await blogService.create(newBlog);
       let blogs = await blogService.getAll();
       setBlogs(blogs);
-      setErrorFlag(false);
-      setStatusMessage(`new blog added - ${newBlog.title} by ${newBlog.author}`);
+      dispatch(
+        updateNotification({
+          message: `new blog added - ${newBlog.title} by ${newBlog.author}`,
+          error: false,
+        })
+      );
       setNewBlog({ title: '', author: '', url: '' });
     } catch (err) {
-      setErrorFlag(true);
-      setStatusMessage('Fail to create blog');
+      dispatch(
+        updateNotification({ message: 'Fail to create blog', error: true })
+      );
     }
-    setTimeout(() => setStatusMessage(null), 5000);
+    setTimeout(
+      () => dispatch(updateNotification({ message: null, error: null })),
+      5000
+    );
   };
 
   const updateBlog = async (update) => {
@@ -81,10 +98,14 @@ const App = () => {
       setBlogs(blogs);
       setNewBlog({ title: '', author: '', url: '' });
     } catch (err) {
-      setErrorFlag(true);
-      setStatusMessage('Fail to create blog');
+      dispatch(
+        updateNotification({ message: 'Fail to create blog', error: true })
+      );
     }
-    setTimeout(() => setStatusMessage(null), 5000);
+    setTimeout(
+      () => dispatch(updateNotification({ message: null, error: null })),
+      5000
+    );
   };
 
   const deleteBlog = async (blog) => {
@@ -96,30 +117,52 @@ const App = () => {
       await blogService.remove(blog);
       let blogs = await blogService.getAll();
       setBlogs(blogs);
-      setErrorFlag(false);
-      setStatusMessage(`blog deleted - ${blog.title} by ${blog.author}`);
+      dispatch(
+        updateNotification({
+          message: `blog deleted - ${blog.title} by ${blog.author}`,
+          error: false,
+        })
+      );
     } catch (err) {
-      setErrorFlag(true);
-      setStatusMessage('Fail to delete blog');
+      dispatch(
+        updateNotification({ message: 'Fail to delete blog', error: true })
+      );
     }
-    setTimeout(() => setStatusMessage(null), 5000);
+    setTimeout(
+      () => dispatch(updateNotification({ message: null, error: null })),
+      5000
+    );
   };
 
   const blogDisplay = () => (
     <div>
       <h2>blogs</h2>
       <div>
-        {user.name} logged in <button type="button" onClick={handleLogout}>logout</button>
+        {user.name} logged in{' '}
+        <button type='button' onClick={handleLogout}>
+          logout
+        </button>
       </div>
-      <br/>
+      <br />
       <Togglable ref={togglableRef} buttonLabel='new note'>
-        <BlogForm onSubmit={createBlog} newBlog={newBlog} handleChange={setNewBlog} />
+        <BlogForm
+          onSubmit={createBlog}
+          newBlog={newBlog}
+          handleChange={setNewBlog}
+        />
       </Togglable>
       <div>
-        { blogs
+        {blogs
           .sort((blog1, blog2) => parseInt(blog2.likes) - parseInt(blog1.likes))
-          .map(blog => <Blog key={blog.id} user={user} blog={blog} updateBlog={updateBlog} handleBlogDelete={deleteBlog}/>)
-        }
+          .map((blog) => (
+            <Blog
+              key={blog.id}
+              user={user}
+              blog={blog}
+              updateBlog={updateBlog}
+              handleBlogDelete={deleteBlog}
+            />
+          ))}
       </div>
     </div>
   );
@@ -129,23 +172,33 @@ const App = () => {
       <h2>Log In</h2>
       <form onSubmit={handleLogin}>
         <div>
-          username <input type="text" value={username} name="username" onChange={({ target }) => setUsername(target.value)}/>
+          username{' '}
+          <input
+            type='text'
+            value={username}
+            name='username'
+            onChange={({ target }) => setUsername(target.value)}
+          />
         </div>
         <div>
-          password <input type="password" value={password} name="password" onChange={({ target }) => setPassword(target.value)}/>
+          password{' '}
+          <input
+            type='password'
+            value={password}
+            name='password'
+            onChange={({ target }) => setPassword(target.value)}
+          />
         </div>
-        <br/>
-        <button type="submit">login</button>
+        <br />
+        <button type='submit'>login</button>
       </form>
     </>
   );
 
   return (
     <div>
-      <Notification message={statusMessage} error={errorFlag}/>
-      { user
-        ? blogDisplay()
-        : loginForm() }
+      <Notification />
+      {user ? blogDisplay() : loginForm()}
     </div>
   );
 };
