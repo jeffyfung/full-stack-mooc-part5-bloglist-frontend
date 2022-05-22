@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Blog from './components/Blog';
 import BlogForm from './components/BlogForm';
 import Togglable from './components/Togglable';
@@ -7,16 +7,20 @@ import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
 import { updateNotification } from './reducers/notificationReducer';
+import { bindedActions } from './reducers/blogReducer';
 
 const App = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState('');
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' });
 
   const dispatch = useDispatch();
   const togglableRef = useRef();
+
+  const blogs = useSelector(({ blogs }) => blogs);
+  console.log('blogs');
+  console.log(blogs);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser');
@@ -28,10 +32,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      let blogs = await blogService.getAll();
-      setBlogs(blogs);
-    })();
+    dispatch(bindedActions.initializeBlogs());
   }, []);
 
   const handleLogin = async (event) => {
@@ -45,13 +46,8 @@ const App = () => {
       setUsername('');
       setPassword('');
     } catch (err) {
-      dispatch(
-        updateNotification({ message: 'Wrong Credentials', error: true })
-      );
-      setTimeout(
-        () => dispatch(updateNotification({ message: null, error: null })),
-        5000
-      );
+      dispatch(updateNotification({ message: 'Wrong Credentials', error: true }));
+      setTimeout(() => dispatch(updateNotification({ message: null, error: null })), 5000);
     }
   };
 
@@ -66,9 +62,7 @@ const App = () => {
     togglableRef.current.toggleVisibility();
 
     try {
-      await blogService.create(newBlog);
-      let blogs = await blogService.getAll();
-      setBlogs(blogs);
+      dispatch(bindedActions.createNewBlog(newBlog));
       dispatch(
         updateNotification({
           message: `new blog added - ${newBlog.title} by ${newBlog.author}`,
@@ -77,31 +71,21 @@ const App = () => {
       );
       setNewBlog({ title: '', author: '', url: '' });
     } catch (err) {
-      dispatch(
-        updateNotification({ message: 'Fail to create blog', error: true })
-      );
+      dispatch(updateNotification({ message: 'Fail to create blog', error: true }));
     }
-    setTimeout(
-      () => dispatch(updateNotification({ message: null, error: null })),
-      5000
-    );
+    setTimeout(() => dispatch(updateNotification({ message: null, error: null })), 5000);
   };
 
   const updateBlog = async (update) => {
     try {
-      await blogService.update(update);
-      let blogs = await blogService.getAll();
-      setBlogs(blogs);
+      console.log('update');
+      console.log(update);
+      dispatch(bindedActions.updateBlog(update));
       setNewBlog({ title: '', author: '', url: '' });
     } catch (err) {
-      dispatch(
-        updateNotification({ message: 'Fail to create blog', error: true })
-      );
+      dispatch(updateNotification({ message: 'Fail to create blog', error: true }));
     }
-    setTimeout(
-      () => dispatch(updateNotification({ message: null, error: null })),
-      5000
-    );
+    setTimeout(() => dispatch(updateNotification({ message: null, error: null })), 5000);
   };
 
   const deleteBlog = async (blog) => {
@@ -110,9 +94,7 @@ const App = () => {
     }
 
     try {
-      await blogService.remove(blog);
-      let blogs = await blogService.getAll();
-      setBlogs(blogs);
+      dispatch(bindedActions.deleteBlog(blog));
       dispatch(
         updateNotification({
           message: `blog deleted - ${blog.title} by ${blog.author}`,
@@ -120,14 +102,9 @@ const App = () => {
         })
       );
     } catch (err) {
-      dispatch(
-        updateNotification({ message: 'Fail to delete blog', error: true })
-      );
+      dispatch(updateNotification({ message: 'Fail to delete blog', error: true }));
     }
-    setTimeout(
-      () => dispatch(updateNotification({ message: null, error: null })),
-      5000
-    );
+    setTimeout(() => dispatch(updateNotification({ message: null, error: null })), 5000);
   };
 
   const blogDisplay = () => (
@@ -141,14 +118,10 @@ const App = () => {
       </div>
       <br />
       <Togglable ref={togglableRef} buttonLabel='new note'>
-        <BlogForm
-          onSubmit={createBlog}
-          newBlog={newBlog}
-          handleChange={setNewBlog}
-        />
+        <BlogForm onSubmit={createBlog} newBlog={newBlog} handleChange={setNewBlog} />
       </Togglable>
       <div>
-        {blogs
+        {[...blogs]
           .sort((blog1, blog2) => parseInt(blog2.likes) - parseInt(blog1.likes))
           .map((blog) => (
             <Blog

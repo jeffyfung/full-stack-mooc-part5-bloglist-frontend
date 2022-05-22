@@ -5,8 +5,6 @@ const Notification = () => {
     return notifications;
   });
 
-  console.log(message, error);
-
   const style = error === true ? {} : { color: 'green', borderColor: 'green' };
 
   if (message) {
