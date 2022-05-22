@@ -3,36 +3,33 @@ import { useDispatch, useSelector } from 'react-redux';
 import Blog from './components/Blog';
 import BlogForm from './components/BlogForm';
 import Togglable from './components/Togglable';
-import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
 import { updateNotification } from './reducers/notificationReducer';
-import { bindedActions } from './reducers/blogReducer';
+import { bindedActions as blogBindedActions } from './reducers/blogReducer';
+import { bindedActions as userBindedActions } from './reducers/userReducer';
 
 const App = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState('');
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' });
 
   const dispatch = useDispatch();
   const togglableRef = useRef();
 
   const blogs = useSelector(({ blogs }) => blogs);
-  console.log('blogs');
-  console.log(blogs);
+  const user = useSelector(({ user }) => user || null);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser');
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      blogService.setToken(user.token);
-      setUser(user);
+      dispatch(userBindedActions.initializeUser(user));
     }
   }, []);
 
   useEffect(() => {
-    dispatch(bindedActions.initializeBlogs());
+    dispatch(blogBindedActions.initializeBlogs());
   }, []);
 
   const handleLogin = async (event) => {
@@ -40,9 +37,8 @@ const App = () => {
 
     try {
       let user = await loginService.login({ username, password });
-      blogService.setToken(user.token);
       window.localStorage.setItem('loggedUser', JSON.stringify(user));
-      setUser(user);
+      dispatch(userBindedActions.initializeUser(user));
       setUsername('');
       setPassword('');
     } catch (err) {
@@ -53,8 +49,7 @@ const App = () => {
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedUser');
-    blogService.setToken('');
-    setUser('');
+    dispatch(userBindedActions.clearUserInfo());
   };
 
   const createBlog = async (event) => {
@@ -62,7 +57,7 @@ const App = () => {
     togglableRef.current.toggleVisibility();
 
     try {
-      dispatch(bindedActions.createNewBlog(newBlog));
+      dispatch(blogBindedActions.createNewBlog(newBlog));
       dispatch(
         updateNotification({
           message: `new blog added - ${newBlog.title} by ${newBlog.author}`,
@@ -78,9 +73,7 @@ const App = () => {
 
   const updateBlog = async (update) => {
     try {
-      console.log('update');
-      console.log(update);
-      dispatch(bindedActions.updateBlog(update));
+      dispatch(blogBindedActions.updateBlog(update));
       setNewBlog({ title: '', author: '', url: '' });
     } catch (err) {
       dispatch(updateNotification({ message: 'Fail to create blog', error: true }));
@@ -94,7 +87,7 @@ const App = () => {
     }
 
     try {
-      dispatch(bindedActions.deleteBlog(blog));
+      dispatch(blogBindedActions.deleteBlog(blog));
       dispatch(
         updateNotification({
           message: `blog deleted - ${blog.title} by ${blog.author}`,
@@ -167,7 +160,7 @@ const App = () => {
   return (
     <div>
       <Notification />
-      {user ? blogDisplay() : loginForm()}
+      {user.token ? blogDisplay() : loginForm()}
     </div>
   );
 };
