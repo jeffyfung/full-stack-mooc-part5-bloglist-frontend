@@ -7,6 +7,7 @@ import loginService from './services/login';
 import Notification from './components/Notification';
 import UserDisplay from './components/UserDisplay';
 import UserDetailsDisplay from './components/UserDetailsDisplay';
+import BlogDetailsDisplay from './components/BlogDetailsDisplay';
 import { updateNotification } from './reducers/notificationReducer';
 import { bindedActions as blogBindedActions } from './reducers/blogReducer';
 import { bindedActions as userBindedActions } from './reducers/userReducer';
@@ -164,6 +165,7 @@ const App = () => {
         <Route path='/' element={user.token ? blogDisplay() : loginForm()} />
         <Route path='/users' element={<UserDisplay />} />
         <Route path='/users/:id' element={<UserDetailsDisplay />} />
+        <Route path='/blogs/:id' element={<BlogDetailsDisplay updateBlog={updateBlog} />} />
       </Routes>
     </div>
   );
