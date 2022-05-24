@@ -5,9 +5,14 @@ import BlogForm from './components/BlogForm';
 import Togglable from './components/Togglable';
 import loginService from './services/login';
 import Notification from './components/Notification';
+import UserDisplay from './components/UserDisplay';
+import UserDetailsDisplay from './components/UserDetailsDisplay';
 import { updateNotification } from './reducers/notificationReducer';
 import { bindedActions as blogBindedActions } from './reducers/blogReducer';
 import { bindedActions as userBindedActions } from './reducers/userReducer';
+
+import { Routes, Route } from 'react-router-dom';
+import BlogHeader from './components/BlogHeader';
 
 const App = () => {
   const [username, setUsername] = useState('');
@@ -45,11 +50,6 @@ const App = () => {
       dispatch(updateNotification({ message: 'Wrong Credentials', error: true }));
       setTimeout(() => dispatch(updateNotification({ message: null, error: null })), 5000);
     }
-  };
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('loggedUser');
-    dispatch(userBindedActions.clearUserInfo());
   };
 
   const createBlog = async (event) => {
@@ -102,14 +102,14 @@ const App = () => {
 
   const blogDisplay = () => (
     <div>
-      <h2>blogs</h2>
-      <div>
-        {user.name} logged in{' '}
-        <button type='button' onClick={handleLogout}>
-          logout
-        </button>
-      </div>
+      <BlogHeader />
       <br />
+      {blogList()}
+    </div>
+  );
+
+  const blogList = () => (
+    <div>
       <Togglable ref={togglableRef} buttonLabel='new note'>
         <BlogForm onSubmit={createBlog} newBlog={newBlog} handleChange={setNewBlog} />
       </Togglable>
@@ -160,7 +160,11 @@ const App = () => {
   return (
     <div>
       <Notification />
-      {user.token ? blogDisplay() : loginForm()}
+      <Routes>
+        <Route path='/' element={user.token ? blogDisplay() : loginForm()} />
+        <Route path='/users' element={<UserDisplay />} />
+        <Route path='/users/:id' element={<UserDetailsDisplay />} />
+      </Routes>
     </div>
   );
 };
