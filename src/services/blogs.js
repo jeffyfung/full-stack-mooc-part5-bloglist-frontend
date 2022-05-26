@@ -3,7 +3,7 @@ const baseUrl = '/api/blogs';
 
 let token;
 
-const setToken = newToken => {
+const setToken = (newToken) => {
   token = `bearer ${newToken}`;
 };
 
@@ -29,4 +29,10 @@ const remove = async (blog) => {
   await axios.delete(baseUrl + '/' + blog.id, config);
 };
 
-export default { setToken, getAll, create, update, remove };
+const addComment = async (update) => {
+  let config = { headers: { Authorization: token } };
+  let comment = { comment: update.comment };
+  await axios.post(`${baseUrl}/${update.id}/comments`, comment, config);
+};
+
+export default { setToken, getAll, create, update, remove, addComment };

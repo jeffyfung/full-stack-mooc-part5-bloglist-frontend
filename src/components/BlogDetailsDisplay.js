@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { bindedActions as blogBindedActions } from '../reducers/blogReducer';
 import BlogHeader from './BlogHeader';
+import CommentForm from './CommentForm';
 
 const BlogDetailsDisplay = ({ updateBlog }) => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ const BlogDetailsDisplay = ({ updateBlog }) => {
     <div>
       <BlogHeader />
       {blogDetails(targetBlog)}
+      <CommentForm blog={targetBlog} />
     </div>
   );
 };
